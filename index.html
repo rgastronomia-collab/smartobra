@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Elite Mobile Executive FULL | v93.2</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Elite ERP">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/4342/4342728.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<div class="container">
+    <div class="header">
+        <div class="project-title">
+            <select id="project-selector" class="project-selector" onchange="handleProjectChange(this.value)"></select>
+            <button class="btn-action" style="background:#f1f5f9; padding: 10px;" onclick="renameProject()">✏️</button>
+        </div>
+        <div class="header-tools">
+            <button class="btn-action btn-purple" onclick="exportarDados()">💾 BACKUP GERAL</button>
+            <button class="btn-action" style="background:#fff; border:1px solid #ddd" onclick="document.getElementById('input-import').click()">📥 IMPORTAR</button>
+            <input type="file" id="input-import" style="display:none" accept=".json" onchange="importarDados(this)">
+            
+            <button class="btn-action" style="background:#fff; border:1px solid #ddd" onclick="abrirModalGrafico()">📉 GRÁFICO</button>
+            
+            <button class="btn-action" style="background:#fff; border:1px solid #ddd" onclick="exportarCSV()">📊 EXCEL</button>
+        </div>
+    </div>
+
+    <div class="status-bar-wrapper">
+        <div id="status-bar" class="status-bar sb-ok">
+            <div class="status-bar-header">
+                <span id="sb-icon">✅</span> 
+                <span id="sb-text">SISTEMA ONLINE - Nenhuma Pendência</span>
+            </div>
+            <div id="sb-alerts-container"></div>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <div class="card card-time">
+            <small>Saldo Inicial</small>
+            <input type="text" id="dash-saldo" oninput="formatCurrencyMask(this); updateGlobal()" style="border:none; background:transparent; font-weight:900; font-size:1.05rem; padding:0; width:100%" placeholder="R$ 0,00">
+            <input type="date" id="dash-data-saldo" onchange="updateGlobal()" style="border:none; background:transparent; font-size:9px; color:var(--purple); font-weight:700;">
+        </div>
+        <div class="card card-main">
+            <div style="display: flex; justify-content: space-between;">
+                <small>Caixa (Realizado)</small>
+                <button onclick="abrirAjusteSaldo()" style="background:none; border:none; color:var(--accent); font-size:10px; font-weight:900;">🔄 AJUSTAR</button> <button onclick="validarCaixaAgora()" style="background:none;border:none;color:#059669;font-size:10px;font-weight:900;"></button>
+            </div>
+            <h2 id="card-caixa">R$ 0,00</h2>
+            <div class="intel-box" id="intel-runway">Análise de Burn Rate...</div>
+        </div>
+        <div class="card card-free" id="card-livre-box">
+            <small>Saldo Livre (Caixa - Dívidas)</small>
+            <h2 id="card-livre">R$ 0,00</h2>
+            <div class="intel-box">Fôlego financeiro atual.</div>
+        </div>
+        <div class="card card-alert">
+            <small>Comprometimento (A Pagar)</small>
+            <h2 id="card-futuro" style="color:var(--danger)">R$ 0,00</h2>
+            <div id="intel-divida" class="intel-box">0 parcelas pendentes.</div>
+        </div>
+        <div class="card card-time">
+            <small>Prazo de Entrega</small>
+            <h2 id="card-countdown">-- dias</h2>
+            <input type="date" id="delivery-date-picker" onchange="updateDeliveryDate(this.value)" style="border:none; background:transparent; font-size:9px; font-weight:700; color:var(--purple);">
+        </div>
+        <div class="card">
+            <small>Dívida de Cartão</small>
+            <h2 id="card-cartao-total">R$ 0,00</h2>
+            <div class="intel-box" onclick="tab(null, 'aba-cartao')" style="cursor:pointer">Ver faturas ➔</div>
+    </div>
+    </div>
+
+    <div class="tabs">
+        <button id="tab-btn-agenda" class="tab-btn active" onclick="tab(event, 'aba-agenda')">🗓️ Agenda</button>
+        <button id="tab-btn-entregas" class="tab-btn" onclick="tab(event, 'aba-entregas')">🚚 Logística</button>
+        <button id="tab-btn-gastos" class="tab-btn" onclick="tab(event, 'aba-gastos')">💸 Gastos</button>
+        <button id="tab-btn-cotacoes" class="tab-btn" onclick="tab(event, 'aba-cotacoes')">🔍 Orçamentos</button>
+        <button id="tab-btn-fluxo" class="tab-btn" onclick="tab(event, 'aba-fluxo')">📈 Fluxo</button>
+        <button id="tab-btn-cartao" class="tab-btn" onclick="tab(event, 'aba-cartao')">💳 Cartão</button>
+        <button id="tab-btn-entradas" class="tab-btn" onclick="tab(event, 'aba-entradas')">💰 Entradas</button>
+    </div>
+
+    <div id="aba-agenda" class="tab-content active">
+        <div id="header-filtro-agenda"></div> 
+        <div id="bulk-agenda" class="bulk-panel">
+            <span id="bulk-agenda-count" style="font-weight:900; color:var(--accent)">0 selecionados</span>
+            <div style="display:flex; gap:8px;">
+                <button class="btn-action btn-success" style="padding:6px 12px" onclick="bulkExecute('agenda', 'pagar')">PAGAR</button>
+                <button class="btn-action btn-danger" style="padding:6px 12px" onclick="bulkExecute('agenda', 'deletar')">EXCLUIR</button>
+            </div>
+        </div>
+        <div id="corpo-agenda"></div>
+    </div>
+
+    <div id="aba-entregas" class="tab-content">
+        <div class="cal-header">
+            <button class="btn-action" style="padding:8px" onclick="mudarMes(-1)">◀</button>
+            <h3 id="cal-mes-ano" style="margin:0; font-weight:900; text-transform:uppercase; font-size:12px">MÊS ANO</h3>
+            <button class="btn-action" style="padding:8px" onclick="mudarMes(1)">▶</button>
+        </div>
+        <div class="cal-grid-head">
+            <div class="cal-day-name">DOM</div>
+            <div class="cal-day-name">SEG</div>
+            <div class="cal-day-name">TER</div>
+            <div class="cal-day-name">QUA</div>
+            <div class="cal-day-name">QUI</div>
+            <div class="cal-day-name">SEX</div>
+            <div class="cal-day-name">SÁB</div>
+        </div>
+        <div id="cal-dias" class="cal-grid"></div>
+        <button class="btn-action btn-danger" style="width:100%; margin-top:20px" onclick="abrirModalRetirada()">🚨 AGENDAR RETIRADA / ESTORNO</button>
+    </div>
+
+    <div id="aba-gastos" class="tab-content">
+        <div class="filter-bar">
+            <div id="total-gastos-label" style="display:flex; align-items:center; justify-content:center; font-weight:900; font-size:14px; color:var(--danger); background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0;">R$ 0,00</div>
+            
+            <select id="filtro-cat" onchange="render()" style="padding:10px; margin:0"><option value="">Todas as Categorias</option></select>
+        </div>
+        <div id="bulk-gastos" class="bulk-panel">
+            <span id="bulk-gastos-count">0 sel.</span>
+            <button class="btn-action btn-danger" onclick="bulkExecute('out', 'deletar')">EXCLUIR COMPRAS</button>
+        </div>
+        <div id="corpo-gastos"></div>
+    </div>
+
+    <div id="aba-cotacoes" class="tab-content">
+        <div id="corpo-cotacoes"></div>
+    </div>
+
+    <div id="aba-fluxo" class="tab-content">
+        <div style="background:white; padding:15px; border-radius:15px; margin-bottom:15px; border:1px solid #e2e8f0;">
+            <label>Simular compra (R$):</label>
+            <input type="text" id="sim-val" oninput="formatCurrencyMask(this); render();" placeholder="R$ 0,00">
+            <div id="sim-result-box" style="margin-top:10px; padding:12px; border-radius:10px; font-weight:900; font-size:10px; text-align:center; background:#f1f5f9; color:#475569">SIMULAR IMPACTO</div>
+        </div>
+        <div id="corpo-fluxo"></div>
+    </div>
+
+    <div id="aba-cartao" class="tab-content">
+        <button class="btn-action btn-purple" style="width:100%; margin-bottom:15px" onclick="abrirModalCartao()">⚙️ CONFIGURAR MEUS CARTÕES</button>
+        <div id="corpo-cartao"></div>
+        <h3 style="margin:20px 0 10px; font-size:11px; color:#64748b; font-weight:800; text-transform:uppercase;">Histórico de Faturas Pagas</h3>
+        <div id="corpo-cartao-historico"></div>
+    </div>
+
+    <div id="aba-entradas" class="tab-content">
+        <div id="corpo-entradas"></div>
+    </div>
+</div>
+
+<div class="novo-menu-wrap">
+    <button class="novo-btn" onclick="toggleNovoMenu()">+ NOVO</button>
+    <div id="novo-dropdown" class="novo-dropdown">
+        <button class="novo-orc" onclick="abrirModal('cot-new');toggleNovoMenu()">ORÇAMENTO</button>
+        <button class="novo-gasto" onclick="abrirModal('out');toggleNovoMenu()">GASTO</button>
+        <button class="novo-entrada" onclick="abrirModal('in');toggleNovoMenu()">ENTRADA</button>
+    </div>
+</div>
+
+<div id="modal" class="modal">
+    <form class="modal-content" onsubmit="event.preventDefault(); salvar();">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 id="m-titulo" style="margin:0; color:var(--accent); font-weight:900; text-transform:uppercase;">LANÇAMENTO</h3>
+            <button type="button" onclick="fecharModal()" style="background:none; border:none; font-size:24px; color:#94a3b8;">&times;</button>
+        </div>
+        
+        <input type="hidden" id="m-tipo">
+        <input type="hidden" id="m-id-orig">
+        
+        <div class="modal-grid">
+            <div>
+                <label id="lbl-desc">Descrição / Item *</label>
+                <input type="text" id="m-desc" required>
+            </div>
+            
+            <div id="m-div-cat-out">
+                <label>Categoria</label>
+                <select id="m-cat" onchange="toggleNovaCat()"></select>
+                <input type="text" id="m-novo-cat" placeholder="Nova categoria..." style="display:none; margin-top:5px;">
+            </div>
+            
+            <div id="m-div-cat-in" style="display:none">
+                <label>Tipo de Entrada</label>
+                <select id="m-cat-in">
+                    <option value="Salário">Salário</option>
+                    <option value="Extra">Extra</option>
+                    <option value="Aporte">Aporte</option>
+                    <option value="Rendimentos">Rendimentos</option>
+                    <option value="Ajuste de Saldo">Ajuste de Saldo</option>
+                </select>
+            </div>
+            
+            <div id="m-div-in-freq" style="display:none; background: #f1f5f9; padding: 15px; border-radius: 12px;">
+                <label>Recorrência</label>
+                <select id="in-freq" onchange="toggleInFreqOptions()" style="margin-bottom:10px;">
+                    <option value="unica">Única (1x)</option>
+                    <option value="semanal">Semanal</option>
+                    <option value="mensal">Mensal</option>
+                </select>
+                <div id="div-in-weeks" style="display:none;">
+                    <label>Quantas Semanas?</label>
+                    <input type="number" id="in-weeks" value="4">
+                </div>
+                <div id="div-in-months" style="display:none;">
+                    <label>Quantos Meses?</label>
+                    <input type="number" id="in-months" value="12">
+                </div>
+            </div>
+            
+            <div id="m-div-forn" style="display:none;">
+                <label>Fornecedor</label>
+                <input type="text" id="m-forn" onblur="checkProviderMemory(this.value)" style="margin-bottom:10px;">
+                <label>WhatsApp</label>
+                <input type="text" id="m-tel">
+            </div>
+            
+            <div id="m-div-amb">
+                <label>Ambiente</label>
+                <select id="m-amb" onchange="toggleNovoAmb()"></select>
+                <input type="text" id="m-novo-amb" style="display:none; margin-top:5px;">
+            </div>
+            
+            <div id="m-div-data-prazo">
+                <label id="lbl-data">Data de Lançamento / Início</label>
+                <input type="date" id="m-data">
+            </div>
+            
+            <div id="m-div-budget" style="display:none;">
+                <label>Budget Alvo (R$)</label>
+                <input type="text" id="m-budget" oninput="formatCurrencyMask(this)">
+            </div>
+            
+            <div id="m-div-valor">
+                <label id="lbl-valor-principal">Valor Total (R$)</label>
+                <input type="text" id="m-valor" oninput="formatCurrencyMask(this)">
+            </div>
+            
+            <div id="m-div-finan" style="display:none;">
+                <label>Meio de Pagamento</label>
+                <select id="m-metodo" onchange="toggleMetodo()" style="margin-bottom:10px;">
+                    <option value="PIX">PIX</option>
+                    <option value="Cartão de Crédito">Cartão de Crédito</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                </select>
+                
+                <div id="div-cartao-nome" style="display:none; margin-bottom:10px;">
+                    <label>Selecionar Cartão</label>
+                    <select id="m-cartao"></select>
+                </div>
+                
+                <label>Condição de Pagamento</label>
+                <select id="m-pagto" onchange="toggleCondicao()">
+                    <option value="parc">Parcelas Fixas</option>
+                    <option value="perc">Sinal % + Final %</option>
+                    <option value="mix">Sinal % + Saldo Parcelado</option>
+                </select>
+            </div>
+            
+            <div id="d-parc" style="display:none; background:#f8fafc; padding:15px; border-radius:12px;">
+                <label>Qtd Parcelas</label>
+                <input type="number" id="m-qtd" value="1" oninput="calcTudo()" style="margin-bottom:10px;">
+                <label>Valor Parcela</label>
+                <div id="parc-fixa-val" class="val-box">R$ 0,00</div>
+                <div id="div-m-data-i" style="margin-top:10px;">
+                    <label>Data 1ª Parcela</label>
+                    <input type="date" id="m-data-i">
+                </div>
+            </div>
+            
+            <div id="d-perc" style="display:none; background:#f8fafc; padding:15px; border-radius:12px;">
+                <label>% Sinal</label>
+                <input type="number" id="p1-perc" value="30" oninput="calcTudo()">
+                <div id="p1-val-label" class="val-box" style="margin:8px 0">R$ 0,00</div>
+                <input type="date" id="p1-data" style="margin-bottom:15px;">
+                <label>% Final</label>
+                <input type="number" id="p2-perc" value="70" readonly>
+                <div id="p2-val-label" class="val-box" style="margin:8px 0">R$ 0,00</div>
+                <input type="date" id="p2-data">
+            </div>
+            
+            <div id="d-mix" style="display:none; background:#f8fafc; padding:15px; border-radius:12px;">
+                <label>% Sinal</label>
+                <input type="number" id="mix-sinal-p" value="50" oninput="calcTudo()">
+                <div id="mix-sinal-v" class="val-box" style="margin:8px 0">R$ 0,00</div>
+                <input type="date" id="mix-sinal-d" style="margin-bottom:15px;">
+                <label>Qtd Parc. Saldo</label>
+                <input type="number" id="mix-parc-qtd" value="5" oninput="calcTudo()">
+                <div id="mix-parc-v" class="val-box" style="margin:8px 0">R$ 0,00</div>
+                <input type="date" id="mix-parc-d">
+            </div>
+            
+            <div>
+                <label>Notas / Observações</label>
+                <textarea id="m-obs" rows="3"></textarea>
+            </div>
+        </div>
+        
+        <div style="margin-top:25px; display:grid; grid-template-columns: 2fr 1fr; gap:12px;">
+            <button type="submit" id="btn-salvar" class="btn-action btn-success">GRAVAR LANÇAMENTO</button>
+            <button type="button" class="btn-action" style="background:#eee" onclick="fecharModal()">CANCELAR</button>
+        </div>
+    </form>
+</div>
+
+<div id="modal-retirada" class="modal">
+    <form class="modal-content" onsubmit="event.preventDefault(); salvarRetirada();">
+        <h3 style="color:var(--danger); margin:0 0 20px 0; font-weight:900;">RETIRADA E ESTORNO</h3>
+        <label>Vincular a Gasto Realizado</label>
+        <select id="r-vinc-gasto" required onchange="sugerirValorEstorno(this.value)" style="margin-bottom:15px;"></select>
+        <label>Descrição da Retirada</label>
+        <input type="text" id="r-desc" placeholder="Ex: Devolução de Material" required style="margin-bottom:15px;">
+        <label>Data Agendada</label>
+        <input type="date" id="r-data" required style="margin-bottom:15px;">
+        <label>Valor do Estorno</label>
+        <input type="text" id="r-valor" oninput="formatCurrencyMask(this)" placeholder="R$ 0,00" required>
+        <div style="margin-top:25px; display:grid; gap:12px;">
+            <button type="submit" class="btn-action btn-danger">SALVAR AGENDAMENTO</button>
+            <button type="button" class="btn-action" onclick="document.getElementById('modal-retirada').style.display='none'">VOLTAR</button>
+        </div>
+    </form>
+</div>
+
+<div id="modal-logistica-dia" class="modal">
+    <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 id="ml-dia-titulo" style="margin:0; color:var(--accent); font-weight:900;">DETALHES DO DIA</h3>
+            <button onclick="document.getElementById('modal-logistica-dia').style.display='none'" style="background:none; border:none; font-size:24px;">&times;</button>
+        </div>
+        <div id="ml-dia-corpo"></div>
+        <button class="btn-action" style="width:100%; background:#eee; margin-top:15px;" onclick="document.getElementById('modal-logistica-dia').style.display='none'">FECHAR</button>
+    </div>
+</div>
+
+<div id="modal-logistica" class="modal">
+    <form class="modal-content" onsubmit="event.preventDefault(); salvarAgendamentoLogistica();">
+        <h3 id="ml-titulo" style="margin:0 0 20px 0; color:var(--accent); font-weight:900;">AGENDAR LOGÍSTICA</h3>
+        <input type="hidden" id="ml-gid">
+        <label>Tipo de Agendamento</label>
+        <select id="ml-tipo-data" onchange="toggleJanelaLogistica()" style="margin-bottom:15px;">
+            <option value="fixa">Data Fixa</option>
+            <option value="janela">Intervalo (Janela de Entrega)</option>
+        </select>
+        <div id="ml-div-fixa">
+            <label>Data de Entrega</label>
+            <input type="date" id="ml-data-unica">
+        </div>
+        <div id="ml-div-janela" style="display:none;">
+            <label>A partir de</label>
+            <input type="date" id="ml-data-ini" style="margin-bottom:10px;">
+            <label>Até o dia</label>
+            <input type="date" id="ml-data-fim">
+        </div>
+        <div style="margin-top:25px; display:grid; gap:12px;">
+            <button type="submit" class="btn-action btn-success">CONFIRMAR LOGÍSTICA</button>
+            <button type="button" class="btn-action" onclick="document.getElementById('modal-logistica').style.display='none'">CANCELAR</button>
+        </div>
+    </form>
+</div>
+
+<div id="modal-config-cartao" class="modal">
+    <div class="modal-content">
+        <h3 style="margin:0 0 20px 0; color:var(--purple); font-weight:900;">MEUS CARTÕES</h3>
+        <div id="lista-cartoes-config" style="margin-bottom:20px;"></div>
+        <div style="background:#f8fafc; padding:15px; border-radius:15px; border:1px solid #e2e8f0;">
+            <label>Novo Cartão</label>
+            <input type="text" id="nc-nome" placeholder="Nome (Ex: Nubank)" style="margin-bottom:10px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                <div><label>Dia Fech.</label><input type="number" id="nc-fech" min="1" max="31"></div>
+                <div><label>Dia Venc.</label><input type="number" id="nc-venc" min="1" max="31"></div>
+            </div>
+            <button class="btn-action btn-success" style="width:100%" onclick="addNovoCartao()">+ ADICIONAR CARTÃO</button>
+        </div>
+        <button class="btn-action" style="width:100%; margin-top:20px; background:#eee" onclick="document.getElementById('modal-config-cartao').style.display='none'">FECHAR</button>
+    </div>
+</div>
+
+<div id="custom-dialog" class="modal" style="z-index: 5000;">
+    <div class="modal-content" style="text-align:center; padding-bottom:30px;">
+        <h3 id="cd-title" style="margin-top:0; font-weight:900;">Atenção</h3>
+        <p id="cd-msg" style="font-size:15px; color:#475569; line-height:1.5;"></p>
+        <input type="text" id="cd-input" style="display:none; margin:20px 0; text-align:center; font-weight:900; font-size:1.2rem; border-color:var(--accent);">
+        <input type="date" id="cd-input-date" style="display:none; margin:20px 0; text-align:center; font-weight:900; font-size:1.2rem; border-color:var(--purple);">
+        <div style="display:grid; gap:12px; margin-top:25px;">
+            <button class="btn-action btn-success" id="cd-btn-ok">CONFIRMAR</button>
+            <button class="btn-action" style="background:#eee" onclick="fecharDialog()">CANCELAR</button>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+<div id="modal-grafico" class="modal">
+    <div class="modal-content" style="height: auto; padding-bottom: 30px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="margin:0; color:var(--accent); font-weight:900;">DISTRIBUIÇÃO DE GASTOS</h3>
+            <button onclick="document.getElementById('modal-grafico').style.display='none'" style="background:none; border:none; font-size:24px; color:#94a3b8;">&times;</button>
+        </div>
+        
+        <div style="background: #f8fafc; padding: 10px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #e2e8f0;">
+            <canvas id="expenseChart" style="width: 100%; height: 300px;"></canvas>
+        </div>
+
+        <button class="btn-action" style="width:100%; background:#eee" onclick="document.getElementById('modal-grafico').style.display='none'">FECHAR RELATÓRIO</button>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,624 @@
+/* ==========================================================================
+   1. VARIÁVEIS E RESET GLOBAL
+   ========================================================================== */
+:root { 
+    --primary: #0f172a; 
+    --accent: #2563eb; 
+    --success: #059669; 
+    --danger: #dc2626; 
+    --bg: #f1f5f9; 
+    --warning: #f59e0b; 
+    --purple: #6366f1; 
+    --card-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
+}
+
+body { 
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+    background: var(--bg); 
+    color: var(--primary); 
+    margin: 0; 
+    padding: 0; 
+    font-size: 13px; 
+    line-height: 1.4; 
+    -webkit-tap-highlight-color: transparent;
+}
+
+.container { 
+    width: 100%; 
+    max-width: 100%; 
+    margin: 0 auto; 
+    box-sizing: border-box; 
+    padding-bottom: 110px; 
+}
+
+/* ==========================================================================
+   2. CABEÇALHO E CONTROLES DE PROJETO
+   ========================================================================== */
+.header { 
+    background: #fff; 
+    padding: 12px; 
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky; 
+    top: 0; 
+    z-index: 1000; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.project-title { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    margin-bottom: 10px; 
+    gap: 10px; 
+}
+
+.project-selector { 
+    font-size: 1.1rem; 
+    border: none; 
+    background: #f8fafc; 
+    color: var(--accent); 
+    padding: 10px; 
+    border-radius: 10px; 
+    width: 100%; 
+    font-weight: 900; 
+    appearance: none;
+}
+
+.header-tools { 
+    display: flex; 
+    gap: 8px; 
+    overflow-x: auto; 
+    scrollbar-width: none; 
+    padding-bottom: 4px; 
+}
+
+.header-tools::-webkit-scrollbar { 
+    display: none; 
+}
+
+/* ==========================================================================
+   3. STATUS BAR INTELIGENTE (ALERTS)
+   ========================================================================== */
+.status-bar-wrapper {
+    margin: 12px;
+}
+
+.status-bar { 
+    padding: 12px; 
+    border-radius: 12px; 
+    display: flex; 
+    flex-direction: column;
+    gap: 5px; 
+    font-weight: 800; 
+    font-size: 11px; 
+    border: 1px solid transparent; 
+}
+
+.status-bar-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+.sb-ok { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+.sb-alert { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+.sb-critical { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+
+.alert-item {
+    padding: 4px 0;
+    display: block;
+    border-bottom: 1px dashed rgba(0,0,0,0.05);
+}
+.alert-item:last-child {
+    border-bottom: none;
+}
+
+/* ==========================================================================
+   4. DASHBOARD CARDS
+   ========================================================================== */
+.dashboard { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px; 
+    padding: 0 12px 12px 12px; 
+}
+
+.card { 
+    background: white; 
+    padding: 12px; 
+    border-radius: 14px; 
+    border-left: 5px solid #cbd5e1; 
+    box-shadow: var(--card-shadow);
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
+    min-height: 80px;
+}
+
+.card-main { border-left-color: var(--accent); background: #eef2ff; }
+.card-alert { border-left-color: var(--danger); background: #fff1f2; }
+.card-free { border-left-color: var(--success); background: #f0fdf4; }
+.card-free.negative { border-left-color: var(--danger); background: #fef2f2; }
+.card-time { border-left-color: var(--purple); background: #faf5ff; }
+
+.card small { 
+    font-size: 0.65rem; 
+    color: #64748b; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    display: block; 
+    margin-bottom: 4px; 
+}
+
+.card h2 { 
+    margin: 0; 
+    font-size: 1.05rem; 
+    font-weight: 900; 
+    letter-spacing: -0.5px; 
+}
+
+.intel-box { 
+    font-size: 9px; 
+    color: #64748b; 
+    margin-top: 6px; 
+    font-weight: 700; 
+    border-top: 1px solid rgba(0,0,0,0.05); 
+    padding-top: 4px; 
+}
+
+/* ==========================================================================
+   5. NAVEGAÇÃO E TABS
+   ========================================================================== */
+.tabs { 
+    display: flex; 
+    overflow-x: auto; 
+    background: #fff; 
+    position: sticky; 
+    top: 105px; 
+    z-index: 900; 
+    border-bottom: 1px solid #e2e8f0; 
+    scrollbar-width: none;
+}
+
+.tab-btn { 
+    padding: 14px 18px; 
+    border: none; 
+    background: none; 
+    white-space: nowrap;
+    font-weight: 800; 
+    color: #94a3b8; 
+    font-size: 10px; 
+    border-bottom: 3px solid transparent;
+    text-transform: uppercase; 
+    transition: 0.2s;
+}
+
+.tab-btn.active { 
+    color: var(--accent); 
+    border-bottom-color: var(--accent); 
+}
+
+.tab-content { 
+    padding: 15px; 
+    display: none; 
+    animation: fadeIn 0.3s ease; 
+}
+
+.tab-content.active { 
+    display: block; 
+}
+
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(5px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
+/* ==========================================================================
+   6. LISTAS E ITENS (AGENDA, GASTOS, ORÇAMENTOS)
+   ========================================================================== */
+.section-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin: 15px 0 10px; 
+}
+
+.section-header h3 { 
+    margin: 0; 
+    font-size: 12px; 
+    text-transform: uppercase; 
+    color: #64748b; 
+    font-weight: 900; 
+}
+
+.list-item { 
+    background: white; 
+    padding: 14px; 
+    border-radius: 12px; 
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03); 
+    border: 1px solid #e2e8f0;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.list-item.pago { 
+    opacity: 0.6; 
+    background: #f8fafc; 
+    border-style: dashed; 
+}
+
+.item-main { 
+    flex: 1; 
+    padding-right: 10px; 
+}
+
+.item-title { 
+    font-weight: 800; 
+    font-size: 13px; 
+    display: block; 
+    margin-bottom: 2px; 
+}
+
+.item-sub { 
+    font-size: 10px; 
+    color: #64748b; 
+    font-weight: 600; 
+}
+
+.item-side { 
+    text-align: right; 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.item-price { 
+    display: block; 
+    font-weight: 900; 
+    font-size: 13px; 
+}
+
+.pill { 
+    display: inline-block; 
+    padding: 2px 6px; 
+    border-radius: 4px; 
+    font-size: 8px; 
+    font-weight: 900; 
+    text-transform: uppercase; 
+}
+
+.pill-warn { background: #fffbeb; color: #92400e; }
+.pill-success { background: #dcfce7; color: #166534; }
+.pill-danger { background: #fef2f2; color: #991b1b; }
+.pill-purple { background: #f3e8ff; color: #6b21a8; }
+.pill-janela { background: #e0f2fe; color: #0369a1; border: 1px dashed #7dd3fc; }
+
+/* ==========================================================================
+   7. CALENDÁRIO E LOGÍSTICA
+   ========================================================================== */
+.cal-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 12px; 
+}
+
+.cal-grid-head { 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 2px; 
+    margin-bottom: 4px; 
+}
+
+.cal-day-name { 
+    font-size: 9px; 
+    text-align: center; 
+    font-weight: 900; 
+    color: #64748b; 
+    padding-bottom: 5px; 
+}
+
+.cal-grid { 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 2px; 
+}
+
+.cal-day { 
+    background: #fff; 
+    border: 1px solid #e2e8f0; 
+    min-height: 85px; 
+    padding: 4px; 
+    position: relative; 
+    border-radius: 4px; 
+    overflow: hidden; 
+}
+
+.cal-num { 
+    font-size: 10px; 
+    font-weight: 900; 
+    color: #cbd5e1; 
+    text-align: right; 
+}
+
+.cal-day.today { 
+    border: 2px solid var(--accent); 
+    background: #eff6ff; 
+}
+
+.cal-day.today .cal-num { 
+    color: var(--accent); 
+}
+
+.cal-events { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 3px; 
+    margin-top: 4px; 
+}
+
+.event-dot { 
+    height: 6px; 
+    border-radius: 3px; 
+    width: 100%; 
+    border: 1px solid rgba(0,0,0,0.05); 
+}
+
+/* Expansão do detalhe do dia no calendário */
+.log-item-expand { 
+    background: #f8fafc; 
+    border: 1px solid #e2e8f0; 
+    padding: 15px; 
+    border-radius: 12px; 
+    margin-bottom: 10px; 
+}
+
+.log-tag { 
+    font-size: 9px; 
+    font-weight: 900; 
+    padding: 3px 6px; 
+    border-radius: 4px; 
+    text-transform: uppercase; 
+    margin-right: 5px; 
+}
+
+/* ==========================================================================
+   8. MODAIS, FORMULÁRIOS E BOTÕES
+   ========================================================================== */
+.modal { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(15, 23, 42, 0.8); 
+    z-index: 3000; 
+    display: none; 
+    align-items: flex-end; 
+}
+
+.modal-content { 
+    background: white; 
+    width: 100%; 
+    max-height: 95vh; 
+    border-radius: 20px 20px 0 0; 
+    padding: 20px; 
+    overflow-y: auto; 
+    box-sizing: border-box; 
+    box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+}
+
+.modal-grid { 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 15px; 
+}
+
+input, select, textarea { 
+    width: 100%; 
+    padding: 14px; 
+    border: 1.5px solid #e2e8f0; 
+    border-radius: 10px; 
+    font-size: 16px; 
+    background: #f8fafc; 
+    box-sizing: border-box; 
+}
+
+input:focus { 
+    border-color: var(--accent); 
+    outline: none; 
+    background: #fff; 
+}
+
+label { 
+    font-size: 10px; 
+    font-weight: 800; 
+    color: #475569; 
+    margin-bottom: 4px; 
+    display: block; 
+    text-transform: uppercase; 
+}
+
+.btn-action { 
+    padding: 14px; 
+    border-radius: 10px; 
+    border: none; 
+    font-weight: 900; 
+    text-transform: uppercase; 
+    font-size: 11px; 
+    text-align: center; 
+    cursor: pointer; 
+}
+
+.btn-small {
+    padding: 6px 10px;
+    font-size: 9px;
+    border-radius: 6px;
+}
+
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-purple { background: var(--purple); color: white; }
+.btn-warning { background: var(--warning); color: white; }
+.btn-outline { background: white; border: 1px solid #cbd5e1; color: var(--primary); }
+
+.val-box { 
+    background: #fff; 
+    border: 1px solid #cbd5e1; 
+    padding: 10px; 
+    border-radius: 8px; 
+    text-align: center; 
+    font-weight: 900; 
+    color: var(--accent); 
+}
+
+.fab-container { 
+    position: fixed; 
+    bottom: 20px; 
+    right: 20px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+    z-index: 2000; 
+}
+
+.btn-fab { 
+    width: 56px; 
+    height: 56px; 
+    border-radius: 28px; 
+    border: none; 
+    color: white; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 24px; 
+    cursor: pointer; 
+}
+
+/* ==========================================================================
+   9. BARRA DE FILTRO E AÇÕES EM MASSA
+   ========================================================================== */
+.filter-bar { 
+    background: #fff; 
+    padding: 12px; 
+    border-radius: 12px; 
+    border: 1px solid #e2e8f0; 
+    margin-bottom: 15px; 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px; 
+}
+
+.bulk-panel { 
+    background: #eef2ff; 
+    padding: 12px; 
+    border-radius: 12px; 
+    margin-bottom: 12px; 
+    display: none; 
+    align-items: center; 
+    justify-content: space-between; 
+    border: 1px solid var(--accent); 
+}
+
+/* ==========================================================================
+   10. TOAST E FLUXO DE CAIXA
+   ========================================================================== */
+.toast { 
+    position: fixed; 
+    top: 20px; 
+    left: 20px; 
+    right: 20px; 
+    z-index: 4000; 
+    background: #0f172a; 
+    color: white; 
+    padding: 16px; 
+    border-radius: 12px; 
+    font-weight: 700; 
+    font-size: 11px; 
+    text-align: center; 
+    box-shadow: 0 10px 15px rgba(0,0,0,0.2); 
+    animation: slideDown 0.3s ease; 
+}
+
+@keyframes slideDown { 
+    from { transform: translateY(-100%); opacity: 0; } 
+    to { transform: translateY(0); opacity: 1; } 
+}
+
+.fluxo-card { 
+    background: #fff; 
+    padding: 12px; 
+    border-radius: 12px; 
+    margin-bottom: 8px; 
+    border: 1px solid #e2e8f0; 
+    display: grid; 
+    grid-template-columns: 1fr 1fr 1fr; 
+    align-items: center; 
+}
+
+.fluxo-mes { 
+    font-weight: 900; 
+    color: var(--primary); 
+    font-size: 11px; 
+}
+
+.fluxo-vals { 
+    text-align: center; 
+    font-size: 10px; 
+    font-weight: 700; 
+    color: #64748b; 
+}
+
+.fluxo-saldo { 
+    text-align: right; 
+    font-weight: 900; 
+    font-size: 13px; 
+}
+
+.buttons-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+/* MENU +NOVO */
+.novo-menu-wrap{
+    position:fixed;
+    top:15px;
+    right:15px;
+    z-index:2500;
+}
+.novo-btn{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 14px;
+    border-radius:10px;
+    font-weight:900;
+    cursor:pointer;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+.novo-dropdown{
+    display:none;
+    flex-direction:column;
+    gap:6px;
+    margin-top:8px;
+}
+.novo-dropdown button{
+    border:none;
+    padding:10px;
+    border-radius:8px;
+    font-weight:800;
+    cursor:pointer;
+}
+.novo-orc{background:#f59e0b;color:white;}
+.novo-gasto{background:#059669;color:white;}
+.novo-entrada{background:#6366f1;color:white;}
