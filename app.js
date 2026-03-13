@@ -1062,3 +1062,4 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js')
     .then(() => console.log("Elite ERP: Modo App Ativado (Offline Ready)"))
     .catch((err) => console.log("Erro ao ativar modo App:", err));
+}
