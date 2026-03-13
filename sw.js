@@ -1,4 +1,4 @@
-const CACHE_NAME = 'elite-erp-v1';
+const CACHE_NAME = 'elite-erp-v2';
 const ASSETS = [
   'index.html',
   'style.css',
